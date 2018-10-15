@@ -78,7 +78,8 @@ void stencil(const int nx, const int ny, double * restrict image, double * restr
   // non-edge cells
   for (int i = 1; i < nx-1; ++i) {
     for (int j = 1; j < ny-1; ++j) { 
-      tmp_image[j+i*ny] = image[j+i*ny] * 6 + image[j+(i-1)*ny] + image[j+(i+1)*ny] + image[j-1+i*ny] + image[j+1+i*ny];
+      int ij = j+i*ny;
+      tmp_image[ij] = image[ij] * 6 + image[ij-ny] + image[ij+ny] + image[ij-1] + image[ij+1];
     }
   }
 }
