@@ -78,7 +78,7 @@ void stencil(const int nx, const int ny, double *  image, double *  tmp_image) {
   // all non-edge squares
   for (int j = 1; j < ny-1; ++j) {
     for (int i = 1; i < nx-1; ++i) {
-      tmp_image[j+i*ny] = image[j+i*ny] * 6 + image[j+(i-1)*ny] * 0.1 + image[j+(i+1)*ny] * 0.1 + image[j-1+i*ny] * 0.1 + image[j+1+i*ny] * 0.1;
+      tmp_image[j+i*ny] = image[j+i*ny] * 0.6 + image[j+(i-1)*ny] * 0.1 + image[j+(i+1)*ny] * 0.1 + image[j-1+i*ny] * 0.1 + image[j+1+i*ny] * 0.1;
     }
   }
 }
