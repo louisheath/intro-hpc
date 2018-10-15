@@ -50,22 +50,22 @@ int main(int argc, char *argv[]) {
 }
 
 void stencil(const int nx, const int ny, double * restrict image, double * restrict tmp_image) {
-  // i = 0
+
+  // non-corner edge cells
   for (int j = 1; j < ny-1; ++j) {
+    // i = 0
     tmp_image[j] =  image[j] * 6 + image[j+ny] + image[j-1] + image[j+1];
-  }
-  // i = (nx-1)
-  for (int j = 1; j < ny-1; ++j) {
+    // i = (nx-1)
     tmp_image[j+(nx-1)*ny] = image[j+(nx-1)*ny] * 6 + image[j+(nx-2)*ny] + image[j-1+(nx-1)*ny] + image[j+1+(nx-1)*ny];
   }
-  // j = 0
   for (int i = 1; i < nx-1; ++i) {
+    // j = 0
     tmp_image[i*ny] = image[i*ny] * 6 + image[(i-1)*ny] + image[(i+1)*ny] + image[1+i*ny];
-  }
-  // j = (ny-1)
-  for (int i = 1; i < nx-1; ++i) {
+    // j = (ny-1)
     tmp_image[ny-1+i*ny] = image[ny-1+i*ny] * 6 + image[ny-1+(i-1)*ny] + image[ny-1+(i+1)*ny] + image[ny-2+i*ny];
   }
+
+  // corner cells
   // i = 0, j = 0
   tmp_image[0] = image[0] * 6 + image[ny] + image[1];
   // i = 0; j = ny-1
@@ -75,7 +75,7 @@ void stencil(const int nx, const int ny, double * restrict image, double * restr
   // i = (nx-1), j = 0
   tmp_image[(nx-1)*ny] = image[(nx-1)*ny] * 6 + image[(nx-2)*ny] + image[1+(nx-1)*ny];
 
-  // all non-edge squares
+  // non-edge cells
   for (int i = 1; i < nx-1; ++i) {
     for (int j = 1; j < ny-1; ++j) { 
       tmp_image[j+i*ny] = image[j+i*ny] * 6 + image[j+(i-1)*ny] + image[j+(i+1)*ny] + image[j-1+i*ny] + image[j+1+i*ny];
