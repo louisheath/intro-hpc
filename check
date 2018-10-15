@@ -1,4 +1,18 @@
 #!/bin/bash
 
 module load languages/python-2.7.6
-python check.py --ref-stencil-file stencil_1024_1024_100.pgm --stencil-file stencil.pgm
+
+case "$1" in
+  -s)
+    python check.py --ref-stencil-file stencil_1024_1024_100.pgm --stencil-file stencil.pgm
+    ;;
+  -m)
+    python check.py --ref-stencil-file stencil_4096_4096_100.pgm --stencil-file stencil.pgm
+    ;;
+  -l)
+    python check.py --ref-stencil-file stencil_8000_8000_100.pgm --stencil-file stencil.pgm
+    ;;
+  *)
+    echo "use flag -s, -m or -l"
+    ;;
+  esac
