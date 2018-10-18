@@ -60,14 +60,6 @@ void stencil(const int nx, const int ny, double * restrict image, double * restr
     // i = 0
     tmp_image[j] =  image[j] * 6 + image[j+ny] + image[j-1] + image[j+1];
   }
-  for (int i = 1; i != nx-1; ++i) {  // NOT VECTORIZING
-    // j = 0
-    tmp_image[i*ny] = image[i*ny] * 6 + image[(i-1)*ny] + image[(i+1)*ny] + image[1+i*ny];
-  }
-  for (int i = 1; i != nx-1; ++i) {  // NOT VECTORIZING
-    // j = (ny-1)
-    tmp_image[ny-1+i*ny] = image[ny-1+i*ny] * 6 + image[ny-1+(i-1)*ny] + image[ny-1+(i+1)*ny] + image[ny-2+i*ny];
-  }
 
   // corner cells
   // i = 0, j = 0
@@ -81,9 +73,15 @@ void stencil(const int nx, const int ny, double * restrict image, double * restr
 
   // non-edge cells
   for (int i = 1; i != nx-1; ++i) {
+    // j = 0
+    tmp_image[i*ny] = image[i*ny] * 6 + image[(i-1)*ny] + image[(i+1)*ny] + image[1+i*ny];
+
     for (int j = 1; j != ny-1; ++j) { 
       tmp_image[j+i*ny] = image[j+i*ny] * 6 + image[j+i*ny-ny] + image[j+i*ny+ny] + image[j+i*ny-1] + image[j+i*ny+1];
     }
+
+    // j = (ny-1)
+    tmp_image[ny-1+i*ny] = image[ny-1+i*ny] * 6 + image[ny-1+(i-1)*ny] + image[ny-1+(i+1)*ny] + image[ny-2+i*ny];
   }
 }
 
