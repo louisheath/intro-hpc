@@ -52,20 +52,19 @@ int main(int argc, char *argv[]) {
 void stencil(const int nx, const int ny, double * restrict image, double * restrict tmp_image) {
 
   // non-corner edge cells
-  for (int j = 1; j < ny-1; ++j) {
-    // i = 0
-    tmp_image[j] =  image[j] * 6 + image[j+ny] + image[j-1] + image[j+1];
-  }
-  // non-corner edge cells
-  for (int j = 1; j < ny-1; ++j) {
+  for (int j = 1; j < ny-1; ++j) {  // VECTORIZING
     // i = (nx-1)
     tmp_image[j+(nx-1)*ny] = image[j+(nx-1)*ny] * 6 + image[j+(nx-2)*ny] + image[j-1+(nx-1)*ny] + image[j+1+(nx-1)*ny];
   }
-  for (int i = 1; i < nx-1; ++i) {
+  for (int j = 1; j < ny-1; ++j) {  // NOT VECTORIZING // number of iterations can't be computed
+    // i = 0
+    tmp_image[j] =  image[j] * 6 + image[j+ny] + image[j-1] + image[j+1];
+  }
+  for (int i = 1; i < nx-1; ++i) {  // NOT VECTORIZING
     // j = 0
     tmp_image[i*ny] = image[i*ny] * 6 + image[(i-1)*ny] + image[(i+1)*ny] + image[1+i*ny];
   }
-  for (int i = 1; i < nx-1; ++i) {
+  for (int i = 1; i < nx-1; ++i) {  // NOT VECTORIZING
     // j = (ny-1)
     tmp_image[ny-1+i*ny] = image[ny-1+i*ny] * 6 + image[ny-1+(i-1)*ny] + image[ny-1+(i+1)*ny] + image[ny-2+i*ny];
   }
