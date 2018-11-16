@@ -1,0 +1,10 @@
+# run with "source ./setup" to prevent running within sub shell
+
+# make sure this is in .bashrc
+#  module load languages/intel-compiler-16-u2
+
+# set up aliases for quick dev
+
+alias q="qsub stencil.job"
+alias s="qstat -u lh16421"
+alias profile="gcc -std=c99 -O3 -fopenmp -pg -g -o stencil.gprof stencil.c;./stencil 4096 4096 100;gprof -l stencil.gprof gmon.out"

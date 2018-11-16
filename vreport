@@ -1,0 +1,10 @@
+#!/bin/bash
+
+if [ $# -eq 0 ]
+  then
+    echo "No arguments supplied"
+else
+  module unload languages/gcc-7.1.0
+  gcc -std=c99 -O3 -pg -Wall stencil.c -o stencil -ftree-vectorizer-verbose=$1
+  module load languages/gcc-7.1.0
+fi
