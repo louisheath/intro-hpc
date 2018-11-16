@@ -1,3 +1,7 @@
+.vscode
 stencil
 stencil.out
 stencil.pgm
+1024.out
+4096.out
+8000.out

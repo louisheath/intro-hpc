@@ -5,6 +5,8 @@
 
 # set up aliases for quick dev
 
-alias q="qsub stencil.job"
+alias qs="qsub 1024.job"
+alias qm="qsub 4096.job"
+alias ql="qsub 8000.job"
 alias s="qstat -u lh16421"
 alias profile="gcc -std=c99 -O3 -fopenmp -pg -g -o stencil.gprof stencil.c;./stencil 4096 4096 100;gprof -l stencil.gprof gmon.out"

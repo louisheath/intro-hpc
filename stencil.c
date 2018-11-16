@@ -1,11 +1,14 @@
 
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <sys/time.h>
 #include "mpi.h"
 
 // Define output file name
 #define OUTPUT_FILE "stencil.pgm"
+
+#define MASTER 0
 
 void stencil(const int nx, const int ny, float *  image, float *  tmp_image);
 void init_image(const int nx, const int ny, float *  image, float *  tmp_image);
@@ -32,31 +35,37 @@ int main(int argc, char *argv[]) {
   // Set the input image
   init_image(nx, ny, image, tmp_image);
 
-  // Start timing my code
-  double tic = wtime();
-
-  int rank;
-  int size;
-  int flag;
-  int strlen;
-  char name[MPI_MAX_PROCESSOR_NAME];
+  // Set up MPI
+  int flag, rank, size;
+  char message[BUFSIZ];
+  MPI_Status status;
 
   MPI_Init( &argc, &argv );
   MPI_Initialized(&flag);
-  if ( flag != TRUE )
+  if ( flag != 1 )
     MPI_Abort(MPI_COMM_WORLD,EXIT_FAILURE);
-  MPI_Get_processor_name(hostname,&strlen);
-  MPI_Comm_size( MPI_COMM_WORLD, &size );
   MPI_Comm_rank( MPI_COMM_WORLD, &rank );
+  MPI_Comm_size( MPI_COMM_WORLD, &size );
 
-  for (int t = 0; t < niters; ++t) {
-    stencil(nx, ny, image, tmp_image);
-    stencil(nx, ny, tmp_image, image);
+  // Start timing my code
+  double tic = wtime();
+
+  if (rank == MASTER) {
+    for (int src = 1; src < size; src++) {
+      /* recieving their messages.. */
+      MPI_Recv(message, BUFSIZ, MPI_CHAR, src, 0, MPI_COMM_WORLD, &status);
+      /* and then printing them */
+      printf("recieved message: \"%s\"\n", message);
+    }
+  } else {
+    sprintf(message, "Process %d, at your service!", rank);
+    MPI_Ssend(message, strlen(message)+1, MPI_CHAR, MASTER, 0, MPI_COMM_WORLD);
   }
 
-  printf("Hello, world; from host %s: process %d of %d\n", hostname, rank, size);
-
-  MPI_Finalize();
+  // for (int t = 0; t < niters; ++t) {
+  //   stencil(nx, ny, image, tmp_image);
+  //   stencil(nx, ny, tmp_image, image);
+  // }
 
   // Stop timing my code
   double toc = wtime();
@@ -68,6 +77,9 @@ int main(int argc, char *argv[]) {
 
   output_image(OUTPUT_FILE, nx, ny, image);
   free(image);
+
+  // Clean up MPI
+  MPI_Finalize();
 }
 
 void stencil(const int nx, const int ny, float * restrict image, float * restrict tmp_image) {
