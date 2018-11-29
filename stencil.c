@@ -10,10 +10,16 @@
 
 #define MASTER 0
 
-void stencil(const int nx, const int ny, float *  image, float *  tmp_image);
+void stencil(const int z, const int nx, const int ny, float *  image, float *  tmp_image);
 void init_image(const int nx, const int ny, float *  image, float *  tmp_image);
 void output_image(const char * file_name, const int nx, const int ny, float *image);
+int mod(int x, int n);
 double wtime(void);
+
+/*
+  image accessed by
+    img[column * height + row]
+*/
 
 int main(int argc, char *argv[]) {
 
@@ -24,20 +30,19 @@ int main(int argc, char *argv[]) {
   }
 
   // Initiliase problem dimensions from command line arguments
-  int nx = atoi(argv[1]);
-  int ny = atoi(argv[2]);
+  int numx = atoi(argv[1]);
+  int numy = atoi(argv[2]);
   int niters = atoi(argv[3]);
 
   // Allocate the image
-  float *image = malloc(sizeof(double)*nx*ny);
-  float *tmp_image = malloc(sizeof(double)*nx*ny);
+  float *image = malloc(sizeof(float)*numx*numy);
+  float *tmp_image = malloc(sizeof(float)*numx*numy);
 
   // Set the input image
-  init_image(nx, ny, image, tmp_image);
+  init_image(numx, numy, image, tmp_image);
 
   // Set up MPI
-  int flag, rank, size;
-  char message[BUFSIZ];
+  int flag, rank, size, left, right, tag = 0;
   MPI_Status status;
 
   MPI_Init( &argc, &argv );
@@ -47,79 +52,197 @@ int main(int argc, char *argv[]) {
   MPI_Comm_rank( MPI_COMM_WORLD, &rank );
   MPI_Comm_size( MPI_COMM_WORLD, &size );
 
+  right = (rank + 1) % size;
+  left = (rank == 0) ? size - 1 : rank - 1;
+
+  printf("rank %d, size %d, left %d, right %d\n", rank, size, left, right);
+
   // Start timing my code
   double tic = wtime();
 
-  if (rank == MASTER) {
-    for (int src = 1; src < size; src++) {
-      /* recieving their messages.. */
-      MPI_Recv(message, BUFSIZ, MPI_CHAR, src, 0, MPI_COMM_WORLD, &status);
-      /* and then printing them */
-      printf("recieved message: \"%s\"\n", message);
-    }
-  } else {
-    sprintf(message, "Process %d, at your service!", rank);
-    MPI_Ssend(message, strlen(message)+1, MPI_CHAR, MASTER, 0, MPI_COMM_WORLD);
+  // determine portion width + height
+  int nx = numx / size;
+  int ny = numy;
+
+  if (numx % size != 0) {
+    fprintf(stderr, "No equal split between nodes\n");
+    MPI_Abort(MPI_COMM_WORLD,EXIT_FAILURE);
+    return -1;
   }
 
-  // for (int t = 0; t < niters; ++t) {
-  //   stencil(nx, ny, image, tmp_image);
-  //   stencil(nx, ny, tmp_image, image);
+  // index of top left cell of portion
+  // z = x * height + y
+  int z = (rank * nx) * ny + 0;
+
+  // these indexes include halo columns
+  int _nx = nx;
+  int _ny = ny;
+  int _z = z;
+
+  // add 1 or two to nx depending on how many halo cols
+  // also shift starting index back 1 col if not first
+  if (rank == 0) {
+    _nx += 1;
+  } else if (rank == size - 1) {
+    _nx += 1;
+    _z -= ny;
+  } else {
+    _nx += 2;
+    _z -= ny;
+  }
+
+  // float haloL[2*ny]; // send buffers
+  // float haloR[2*ny];
+  // float haloN[2*ny]; // recv buffer
+
+  // for (int t = 0; t < niters - 1; ++t) {
+  //   // operate on portion
+  //   stencil(_z, _nx, _ny, image, tmp_image);
+  //   stencil(_z, _nx, _ny, tmp_image, image);
+
+  //   printf("iter %d", t);
+
+  //   // prepare halo cells
+  //   if (rank != 0) {
+  //     // prepare left halo
+  //     for (int y = 0; y < ny; y++) {
+  //       haloL[y] = image[z+y];
+  //       haloL[y+ny] = tmp_image[z+y];
+  //     }
+  //   }
+  //   if (rank != size - 1) {
+  //     // prepare right halo
+  //     for (int y = 0; y < ny; y++) {
+  //       haloR[y] = image[((rank+1)*nx-1)*ny+y];
+  //       haloR[y+ny] = tmp_image[((rank+1)*nx-1)*ny+y];
+  //     }
+  //   }
+
+  //   // send halo cells
+  //   if (rank == 0) {
+  //     // receive from right
+  //     MPI_Recv(haloN, 2*ny, MPI_FLOAT, right, tag, MPI_COMM_WORLD, &status);
+  //     // put data in right halo
+  //     for (int y = 0; y < ny; y++) {
+  //       image[_z + (_nx-1)*ny + y] = haloN[y];
+  //       tmp_image[_z + (_nx-1)*ny + y] = haloN[y+ny];
+  //     }
+
+  //     // send right
+  //     MPI_Ssend(haloR, 2*ny, MPI_FLOAT, right, tag, MPI_COMM_WORLD);
+  //   } else if (rank == size - 1) {
+  //     // send left
+  //     MPI_Ssend(haloL, 2*ny, MPI_FLOAT, left, tag, MPI_COMM_WORLD);
+
+  //     // receive from left
+  //     MPI_Recv(haloN, 2*ny, MPI_FLOAT, left, tag, MPI_COMM_WORLD, &status);
+  //     // put data in left halo
+  //     for (int y = 0; y < ny; y++) {
+  //       image[_z+y] = haloL[y];
+  //       tmp_image[_z+y] = haloL[y+ny];
+  //     }
+
+  //   } else {
+  //     // send left and receive from right
+  //     MPI_Sendrecv(haloL, 2*ny, MPI_FLOAT, left, tag,
+	//       haloN, 2*ny, MPI_FLOAT, right, tag, MPI_COMM_WORLD, &status);
+  //     // put data in right halo
+  //     for (int y = 0; y < ny; y++) {
+  //       image[_z + (_nx-1)*ny + y] = haloN[y];
+  //       tmp_image[_z + (_nx-1)*ny + y] = haloN[y+ny];
+  //     }
+
+  //     // send right and receive from left
+  //     MPI_Sendrecv(haloR, 2*ny, MPI_FLOAT, right, tag,
+	//       haloN, 2*ny, MPI_FLOAT, right, tag, MPI_COMM_WORLD, &status);
+  //     // put data in left halo
+  //     for (int y = 0; y < ny; y++) {
+  //       image[_z+y] = haloL[y];
+  //       tmp_image[_z+y] = haloL[y+ny];
+  //     }
+  //   }
   // }
+  // printf("done iters\n");
+  // // operate on portion for last time
+  // stencil(_z, _nx, _ny, image, tmp_image);
+  // stencil(_z, _nx, _ny, tmp_image, image);
+
+  float buffer[nx*ny];
+
+  // combine at master
+  if (rank == MASTER) {
+    for (int src = 1; src < size; src++) {
+      MPI_Recv(buffer, nx*ny, MPI_FLOAT, src, tag, MPI_COMM_WORLD, &status);
+      for (int i = 0; i < nx*ny; i++)
+        image[src*nx*ny+i] = buffer[i];
+    }
+  } else {
+    for (int i = 0; i < nx*ny; i++)
+      buffer[i] = image[z+i];
+    MPI_Ssend(buffer, nx*ny, MPI_FLOAT, MASTER, tag, MPI_COMM_WORLD);
+  }
 
   // Stop timing my code
   double toc = wtime();
 
-  // Output
-  printf("------------------------------------\n");
-  printf(" runtime: %lf s\n", toc-tic);
-  printf("------------------------------------\n");
+  if (rank == MASTER) {
+    // Output
+    printf("------------------------------------\n");
+    printf(" runtime: %lf s\n", toc-tic);
+    printf("------------------------------------\n");
 
-  output_image(OUTPUT_FILE, nx, ny, image);
+    output_image(OUTPUT_FILE, numx, numy, image);
+  }
+  
+  // clean up
   free(image);
-
-  // Clean up MPI
+  free(tmp_image);
   MPI_Finalize();
 }
 
-void stencil(const int nx, const int ny, float * restrict image, float * restrict tmp_image) {
+/**
+ * z    top left corner
+ * nx   num cols
+ * ny   num rows
+ */
+void stencil(const int z, const int nx, const int ny, float * restrict image, float * restrict tmp_image) {
 
-  // i = 0, j = 0
-  tmp_image[0] = image[0] * 0.6f + image[ny] * 0.1f + image[1] * 0.1f;
+  // top left corner
+  tmp_image[z] = image[z] * 0.6f + image[z+ny] * 0.1f + image[z+1] * 0.1f;
 
-  // 'top' horizontal edge cells
+  // 'left' vertical edge cells
   for (int j = 1; j != ny-1; ++j) {  // VECTORIZING
     // i = 0
-    tmp_image[j] =  image[j] * 0.6f + image[j+ny] * 0.1f + image[j-1] * 0.1f + image[j+1] * 0.1f;
+    tmp_image[z+j] =  image[z+j] * 0.6f + image[z+j+ny] * 0.1f + image[z+j-1] * 0.1f + image[z+j+1] * 0.1f;
   }
 
-  // i = 0; j = ny-1
-  tmp_image[ny-1] = image[ny-1] * 0.6f + image[2*ny-1] * 0.1f + image[ny-2] * 0.1f;
+  // bottom left corner
+  tmp_image[z+ny-1] = image[z+ny-1] * 0.6f + image[z+2*ny-1] * 0.1f + image[z+ny-2] * 0.1f;
 
   // non-edge cells
   for (int i = 1; i != nx-1; ++i) {
     // j = 0
-    tmp_image[i*ny] = image[i*ny] * 0.6f + image[(i-1)*ny] * 0.1f + image[(i+1)*ny] * 0.1f + image[1+i*ny] * 0.1f;
+    tmp_image[z+i*ny] = image[z+i*ny] * 0.6f + image[z+(i-1)*ny] * 0.1f + image[z+(i+1)*ny] * 0.1f + image[z+1+i*ny] * 0.1f;
 
     for (int j = 1; j != ny-1; ++j) {  // VECTORIZING
-      tmp_image[j+i*ny] = image[j+i*ny] * 0.6f + image[j+i*ny-ny] * 0.1f + image[j+i*ny+ny] * 0.1f + image[j+i*ny-1] * 0.1f + image[j+i*ny+1] * 0.1f;
+      tmp_image[z+j+i*ny] = image[z+j+i*ny] * 0.6f + image[z+j+i*ny-ny] * 0.1f + image[z+j+i*ny+ny] * 0.1f + image[z+j+i*ny-1] * 0.1f + image[z+j+i*ny+1] * 0.1f;
     }
 
     // j = (ny-1)
-    tmp_image[ny-1+i*ny] = image[ny-1+i*ny] * 0.6f + image[ny-1+(i-1)*ny] * 0.1f + image[ny-1+(i+1)*ny] * 0.1f + image[ny-2+i*ny] * 0.1f;
+    tmp_image[z+ny-1+i*ny] = image[z+ny-1+i*ny] * 0.6f + image[z+ny-1+(i-1)*ny] * 0.1f + image[z+ny-1+(i+1)*ny] * 0.1f + image[z+ny-2+i*ny] * 0.1f;
   }
 
   // i = (nx-1), j = 0
-  tmp_image[(nx-1)*ny] = image[(nx-1)*ny] * 0.6f + image[(nx-2)*ny] * 0.1f + image[1+(nx-1)*ny] * 0.1f;
+  tmp_image[z+(nx-1)*ny] = image[z+(nx-1)*ny] * 0.6f + image[z+(nx-2)*ny] * 0.1f + image[z+1+(nx-1)*ny] * 0.1f;
 
-  // 'bottom' horizontal edge cells
+  // 'right' vertical edge cells
   for (int j = 1; j != ny-1; ++j) {  // VECTORIZING
     // i = (nx-1)
-    tmp_image[j+(nx-1)*ny] = image[j+(nx-1)*ny] * 0.6f + image[j+(nx-2)*ny] * 0.1f + image[j-1+(nx-1)*ny] * 0.1f + image[j+1+(nx-1)*ny] * 0.1f;
+    tmp_image[z+j+(nx-1)*ny] = image[z+j+(nx-1)*ny] * 0.6f + image[z+j+(nx-2)*ny] * 0.1f + image[z+j-1+(nx-1)*ny] * 0.1f + image[z+j+1+(nx-1)*ny] * 0.1f;
   }
 
   // i = (nx-1), j = ny-1
-  tmp_image[1+nx*ny] =  image[1+nx*ny] * 0.6f + image[1+(nx-1)*ny] * 0.1f + image[2+nx*ny] * 0.1f;
+  tmp_image[z+1+nx*ny] =  image[z+1+nx*ny] * 0.6f + image[z+1+(nx-1)*ny] * 0.1f + image[z+2+nx*ny] * 0.1f;
   
 }
 
@@ -187,4 +310,8 @@ double wtime(void) {
   struct timeval tv;
   gettimeofday(&tv, NULL);
   return tv.tv_sec + tv.tv_usec*1e-6;
+}
+
+int mod(int x, int n) {
+  return (x + n) % n;
 }
