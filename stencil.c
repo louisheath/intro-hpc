@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
     exit(EXIT_FAILURE);
   }
 
-  // Initiliase problem dimensions from command line arguments
+  // Initialise problem dimensions from command line arguments
   int numx = atoi(argv[1]);
   int numy = atoi(argv[2]);
   int niters = atoi(argv[3]);
@@ -95,79 +95,187 @@ int main(int argc, char *argv[]) {
     _z -= ny;
   }
 
-  float haloL[2*ny]; // send buffers
-  float haloR[2*ny];
-  float haloN[2*ny]; // recv buffer
+  float haloL[ny]; // send buffers
+  float haloR[ny];
+  float haloN[ny]; // recv buffer
 
   for (int t = 0; t < niters - 1; ++t) {
-    // operate on portion
+    // change tmp_image
     stencil(_z, _nx, _ny, image, tmp_image);
-    stencil(_z, _nx, _ny, tmp_image, image);
 
-    // prepare halo cells
+    // update tmp_image halos
     if (rank != 0) {
       // prepare left halo
       for (int y = 0; y < ny; y++) {
-        haloL[y] = image[z+y];
-        haloL[y+ny] = tmp_image[z+y];
+        haloL[y] = tmp_image[z+y];
       }
     }
     if (rank != size - 1) {
       // prepare right halo
       for (int y = 0; y < ny; y++) {
-        haloR[y] = image[((rank+1)*nx-1)*ny+y];
-        haloR[y+ny] = tmp_image[((rank+1)*nx-1)*ny+y];
+        haloR[y] = tmp_image[((rank+1)*nx-1)*ny+y];
       }
     }
 
     // send halo cells
     if (rank == 0) {
       // receive from right
-      MPI_Recv(haloN, 2*ny, MPI_FLOAT, right, tag, MPI_COMM_WORLD, &status);
+      MPI_Recv(haloN, ny, MPI_FLOAT, right, tag, MPI_COMM_WORLD, &status);
 
       // put data in right halo
       for (int y = 0; y < ny; y++) {
-        image[_z + (_nx-1)*ny + y] = haloN[y];
-        tmp_image[_z + (_nx-1)*ny + y] = haloN[y+ny];
+        tmp_image[_z + (_nx-1)*ny + y] = haloN[y];
       }
 
       // send right
-      MPI_Ssend(haloR, 2*ny, MPI_FLOAT, right, tag, MPI_COMM_WORLD);
+      MPI_Ssend(haloR, ny, MPI_FLOAT, right, tag, MPI_COMM_WORLD);
+
     } else if (rank == size - 1) {
       // send left
-      MPI_Ssend(haloL, 2*ny, MPI_FLOAT, left, tag, MPI_COMM_WORLD);
+      MPI_Ssend(haloL, ny, MPI_FLOAT, left, tag, MPI_COMM_WORLD);
 
       // receive from left
-      MPI_Recv(haloN, 2*ny, MPI_FLOAT, left, tag, MPI_COMM_WORLD, &status);
+      MPI_Recv(haloN, ny, MPI_FLOAT, left, tag, MPI_COMM_WORLD, &status);
       // put data in left halo
       for (int y = 0; y < ny; y++) {
-        image[_z+y] = haloL[y];
-        tmp_image[_z+y] = haloL[y+ny];
+        tmp_image[_z+y] = haloN[y];
       }
 
     } else {
       // send left and receive from right
-      MPI_Sendrecv(haloL, 2*ny, MPI_FLOAT, left, tag,
-	      haloN, 2*ny, MPI_FLOAT, right, tag, MPI_COMM_WORLD, &status);
+      MPI_Sendrecv(haloL, ny, MPI_FLOAT, left, tag,
+	      haloN, ny, MPI_FLOAT, right, tag, MPI_COMM_WORLD, &status);
       // put data in right halo
       for (int y = 0; y < ny; y++) {
-        image[_z + (_nx-1)*ny + y] = haloN[y];
-        tmp_image[_z + (_nx-1)*ny + y] = haloN[y+ny];
+        tmp_image[_z + (_nx-1)*ny + y] = haloN[y];
       }
 
       // send right and receive from left
-      MPI_Sendrecv(haloR, 2*ny, MPI_FLOAT, right, tag,
-	      haloN, 2*ny, MPI_FLOAT, left, tag, MPI_COMM_WORLD, &status);
+      MPI_Sendrecv(haloR, ny, MPI_FLOAT, right, tag,
+	      haloN, ny, MPI_FLOAT, left, tag, MPI_COMM_WORLD, &status);
       // put data in left halo
       for (int y = 0; y < ny; y++) {
-        image[_z+y] = haloL[y];
-        tmp_image[_z+y] = haloL[y+ny];
+        tmp_image[_z+y] = haloN[y];
+      }
+    }
+
+    // change image
+    stencil(_z, _nx, _ny, tmp_image, image);
+
+    // update image halos
+    if (rank != 0) {
+      // prepare left halo
+      for (int y = 0; y < ny; y++) {
+        haloL[y] = image[z+y];
+      }
+    }
+    if (rank != size - 1) {
+      // prepare right halo
+      for (int y = 0; y < ny; y++) {
+        haloR[y] = image[((rank+1)*nx-1)*ny+y];
+      }
+    }
+
+    // send halo cells
+    if (rank == 0) {
+      // receive from right
+      MPI_Recv(haloN, ny, MPI_FLOAT, right, tag, MPI_COMM_WORLD, &status);
+
+      // put data in right halo
+      for (int y = 0; y < ny; y++) {
+        image[_z + (_nx-1)*ny + y] = haloN[y];
+      }
+
+      // send right
+      MPI_Ssend(haloR, ny, MPI_FLOAT, right, tag, MPI_COMM_WORLD);
+    } else if (rank == size - 1) {
+      // send left
+      MPI_Ssend(haloL, ny, MPI_FLOAT, left, tag, MPI_COMM_WORLD);
+
+      // receive from left
+      MPI_Recv(haloN, ny, MPI_FLOAT, left, tag, MPI_COMM_WORLD, &status);
+      // put data in left halo
+      for (int y = 0; y < ny; y++) {
+        image[_z+y] = haloN[y];
+      }
+
+    } else {
+      // send left and receive from right
+      MPI_Sendrecv(haloL, ny, MPI_FLOAT, left, tag,
+	      haloN, ny, MPI_FLOAT, right, tag, MPI_COMM_WORLD, &status);
+      // put data in right halo
+      for (int y = 0; y < ny; y++) {
+        image[_z + (_nx-1)*ny + y] = haloN[y];
+      }
+
+      // send right and receive from left
+      MPI_Sendrecv(haloR, ny, MPI_FLOAT, right, tag,
+	      haloN, ny, MPI_FLOAT, left, tag, MPI_COMM_WORLD, &status);
+      // put data in left halo
+      for (int y = 0; y < ny; y++) {
+        image[_z+y] = haloN[y];
       }
     }
   }
 
   // operate on portion for last time
   stencil(_z, _nx, _ny, image, tmp_image);
+
+  // update tmp_image halos
+  if (rank != 0) {
+    // prepare left halo
+    for (int y = 0; y < ny; y++) {
+      haloL[y] = tmp_image[z+y];
+    }
+  }
+  if (rank != size - 1) {
+    // prepare right halo
+    for (int y = 0; y < ny; y++) {
+      haloR[y] = tmp_image[((rank+1)*nx-1)*ny+y];
+    }
+  }
+
+  // send halo cells
+  if (rank == 0) {
+    // receive from right
+    MPI_Recv(haloN, ny, MPI_FLOAT, right, tag, MPI_COMM_WORLD, &status);
+
+    // put data in right halo
+    for (int y = 0; y < ny; y++) {
+      tmp_image[_z + (_nx-1)*ny + y] = haloN[y];
+    }
+
+    // send right
+    MPI_Ssend(haloR, ny, MPI_FLOAT, right, tag, MPI_COMM_WORLD);
+  } else if (rank == size - 1) {
+    // send left
+    MPI_Ssend(haloL, ny, MPI_FLOAT, left, tag, MPI_COMM_WORLD);
+
+    // receive from left
+    MPI_Recv(haloN, ny, MPI_FLOAT, left, tag, MPI_COMM_WORLD, &status);
+    // put data in left halo
+    for (int y = 0; y < ny; y++) {
+      tmp_image[_z+y] = haloN[y];
+    }
+
+  } else {
+    // send left and receive from right
+    MPI_Sendrecv(haloL, ny, MPI_FLOAT, left, tag,
+      haloN, ny, MPI_FLOAT, right, tag, MPI_COMM_WORLD, &status);
+    // put data in right halo
+    for (int y = 0; y < ny; y++) {
+      tmp_image[_z + (_nx-1)*ny + y] = haloN[y];
+    }
+
+    // send right and receive from left
+    MPI_Sendrecv(haloR, ny, MPI_FLOAT, right, tag,
+      haloN, ny, MPI_FLOAT, left, tag, MPI_COMM_WORLD, &status);
+    // put data in left halo
+    for (int y = 0; y < ny; y++) {
+      tmp_image[_z+y] = haloN[y];
+    }
+  }
+
   stencil(_z, _nx, _ny, tmp_image, image);
 
   float buffer[nx*ny];
@@ -245,7 +353,7 @@ void stencil(const int z, const int nx, const int ny, float * restrict image, fl
   }
 
   // i = (nx-1), j = ny-1
-  tmp_image[z+1+nx*ny] =  image[z+1+nx*ny] * 0.6f + image[z+1+(nx-1)*ny] * 0.1f + image[z+2+nx*ny] * 0.1f;
+  tmp_image[z-1+nx*ny] =  image[z-1+nx*ny] * 0.6f + image[z-1+(nx-1)*ny] * 0.1f + image[z-2+nx*ny] * 0.1f;
   
 }
 
