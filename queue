@@ -1,0 +1,26 @@
+if [ -z "$1" ]
+  then
+    echo "first arg should be s, m or l"
+    exit 1
+fi
+
+if [ -z "$2" ]
+  then
+    echo "second arg should be an int x; 3<x<17"
+    exit 1
+fi
+
+case "$1" in
+  s)
+    job=jobs/1024_$2.job
+    qsub $job
+    ;;
+  m)
+    job=jobs/4096_$2.job
+    qsub $job
+    ;;
+  l)
+    job=jobs/8000_$2.job
+    qsub $job
+    ;;
+  esac
