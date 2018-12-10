@@ -68,15 +68,16 @@ int main(int argc, char *argv[]) {
   int nx = numx;
   int ny = numy / size;
 
-  if (numx % size != 0) {
-    fprintf(stderr, "No equal split between nodes\n");
-    MPI_Abort(MPI_COMM_WORLD,EXIT_FAILURE);
-    return -1;
-  }
-
   // index of top left cell of portion
   // z = x * height + y
   int z = rank * ny;
+
+  // account for input sizes not divisible by cohort size
+  if (numx % size != 0) {
+    if (rank < numx % size)
+      ny++;
+    z += (rank > numx % size) ? numx % size : rank;
+  }
 
   // these indexes include halo columns
   int _nx = nx;
@@ -107,13 +108,13 @@ int main(int argc, char *argv[]) {
     if (rank != 0) {
       // prepare top halo
       for (int x = 0; x < nx; x++) {
-        haloA[x] = tmp_image[z+x*numy];
+        haloA[x] = tmp_image[z +x*numy];
       }
     }
     if (rank != size - 1) {
       // prepare bottom halo
       for (int x = 0; x < nx; x++) {
-        haloB[x] = tmp_image[z+ny-1 + x*numy];
+        haloB[x] = tmp_image[z+ny-1 +x*numy];
       }
     }
 
@@ -124,7 +125,7 @@ int main(int argc, char *argv[]) {
 
       // put data in bottom halo
       for (int x = 0; x < nx; x++) {
-        tmp_image[_z+_ny-1 + x*numy] = haloN[x];
+        tmp_image[_z+_ny-1 +x*numy] = haloN[x];
       }
 
       // send below
@@ -138,7 +139,7 @@ int main(int argc, char *argv[]) {
       MPI_Recv(haloN, nx, MPI_FLOAT, above, tag, MPI_COMM_WORLD, &status);
       // put data in top halo
       for (int x = 0; x < nx; x++) {
-        tmp_image[_z+ x*numy] = haloN[x];
+        tmp_image[_z +x*numy] = haloN[x];
       }
 
     } else {
@@ -147,7 +148,7 @@ int main(int argc, char *argv[]) {
 	      haloN, nx, MPI_FLOAT, below, tag, MPI_COMM_WORLD, &status);
       // put data in bottom halo
       for (int x = 0; x < nx; x++) {
-        tmp_image[_z+_ny-1 + x*numy] = haloN[x];
+        tmp_image[_z+_ny-1 +x*numy] = haloN[x];
       }
 
       // send below and receive from above
@@ -155,7 +156,7 @@ int main(int argc, char *argv[]) {
 	      haloN, nx, MPI_FLOAT, above, tag, MPI_COMM_WORLD, &status);
       // put data in top halo
       for (int x = 0; x < nx; x++) {
-        tmp_image[_z+ x*numy] = haloN[x];
+        tmp_image[_z +x*numy] = haloN[x];
       }
     }
 
@@ -281,22 +282,22 @@ int main(int argc, char *argv[]) {
 
   stencil(_z, _nx, _ny, tmp_image, image);
 
-  float buffer[nx*ny];
+  // float buffer[nx*ny];
 
   // combine at master
-  if (rank == MASTER) {
-    for (int src = 1; src < size; src++) {
-      MPI_Recv(buffer, nx*ny, MPI_FLOAT, src, tag, MPI_COMM_WORLD, &status);
-      for (int i = 0; i < nx; i++)
-        for (int j = 0; j < ny; j++)
-          image[src*ny +j + i*numy] = buffer[i*ny+j];
-    }
-  } else {
-    for (int i = 0; i < nx; i++)
-      for (int j = 0; j < ny; j++)
-        buffer[i*ny+j] = image[z+j + i*numy];
-    MPI_Ssend(buffer, nx*ny, MPI_FLOAT, MASTER, tag, MPI_COMM_WORLD);
-  }
+  // if (rank == MASTER) {
+  //   for (int src = 1; src < size; src++) {
+  //     MPI_Recv(buffer, nx*ny, MPI_FLOAT, src, tag, MPI_COMM_WORLD, &status);
+  //     for (int i = 0; i < nx; i++)
+  //       for (int j = 0; j < ny; j++)
+  //         image[src*ny +j + i*numy] = buffer[i*ny+j];
+  //   }
+  // } else {
+  //   for (int i = 0; i < nx; i++)
+  //     for (int j = 0; j < ny; j++)
+  //       buffer[i*ny+j] = image[z+j + i*numy];
+  //   MPI_Ssend(buffer, nx*ny, MPI_FLOAT, MASTER, tag, MPI_COMM_WORLD);
+  // }
 
   // Stop timing my code
   double toc = wtime();
