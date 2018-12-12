@@ -96,6 +96,9 @@ int main(int argc, char *argv[]) {
   float haloB[nx];
   float haloN[nx]; // recv buffer
 
+  // syncronise processes
+  MPI_Barrier(MPI_COMM_WORLD);
+
   // Start timing my code
   double tic = wtime();
 
