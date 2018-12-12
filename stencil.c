@@ -73,7 +73,7 @@ int main(int argc, char *argv[]) {
       nx++;
     z += ny*((rank > numx % size) ? numx % size : rank);
   }
-  
+
   // these indexes include halo columns
   int _nx = nx;
   int _ny = ny;
@@ -127,11 +127,11 @@ int main(int argc, char *argv[]) {
       }
 
       // send right
-      MPI_Ssend(haloR, ny, MPI_FLOAT, right, tag, MPI_COMM_WORLD);
+      MPI_Send(haloR, ny, MPI_FLOAT, right, tag, MPI_COMM_WORLD);
 
     } else if (rank == size - 1) {
       // send left
-      MPI_Ssend(haloL, ny, MPI_FLOAT, left, tag, MPI_COMM_WORLD);
+      MPI_Send(haloL, ny, MPI_FLOAT, left, tag, MPI_COMM_WORLD);
 
       // receive from left
       MPI_Recv(haloN, ny, MPI_FLOAT, left, tag, MPI_COMM_WORLD, &status);
@@ -187,10 +187,10 @@ int main(int argc, char *argv[]) {
       }
 
       // send right
-      MPI_Ssend(haloR, ny, MPI_FLOAT, right, tag, MPI_COMM_WORLD);
+      MPI_Send(haloR, ny, MPI_FLOAT, right, tag, MPI_COMM_WORLD);
     } else if (rank == size - 1) {
       // send left
-      MPI_Ssend(haloL, ny, MPI_FLOAT, left, tag, MPI_COMM_WORLD);
+      MPI_Send(haloL, ny, MPI_FLOAT, left, tag, MPI_COMM_WORLD);
 
       // receive from left
       MPI_Recv(haloN, ny, MPI_FLOAT, left, tag, MPI_COMM_WORLD, &status);
@@ -244,7 +244,7 @@ int main(int argc, char *argv[]) {
   } else {
     for (int i = 0; i < nx*ny; i++)
       buffer[i] = image[z+i];
-    MPI_Ssend(buffer, nx*ny, MPI_FLOAT, MASTER, tag, MPI_COMM_WORLD);
+    MPI_Send(buffer, nx*ny, MPI_FLOAT, MASTER, tag, MPI_COMM_WORLD);
   }
 
   if (rank == MASTER) {
