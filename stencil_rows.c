@@ -128,11 +128,11 @@ int main(int argc, char *argv[]) {
       }
 
       // send below
-      MPI_Ssend(haloB, nx, MPI_FLOAT, below, tag, MPI_COMM_WORLD);
+      MPI_Send(haloB, nx, MPI_FLOAT, below, tag, MPI_COMM_WORLD);
 
     } else if (rank == size - 1) {
       // send above
-      MPI_Ssend(haloA, nx, MPI_FLOAT, above, tag, MPI_COMM_WORLD);
+      MPI_Send(haloA, nx, MPI_FLOAT, above, tag, MPI_COMM_WORLD);
 
       // receive from above
       MPI_Recv(haloN, nx, MPI_FLOAT, above, tag, MPI_COMM_WORLD, &status);
@@ -187,11 +187,11 @@ int main(int argc, char *argv[]) {
       }
 
       // send below
-      MPI_Ssend(haloB, nx, MPI_FLOAT, below, tag, MPI_COMM_WORLD);
+      MPI_Send(haloB, nx, MPI_FLOAT, below, tag, MPI_COMM_WORLD);
 
     } else if (rank == size - 1) {
       // send above
-      MPI_Ssend(haloA, nx, MPI_FLOAT, above, tag, MPI_COMM_WORLD);
+      MPI_Send(haloA, nx, MPI_FLOAT, above, tag, MPI_COMM_WORLD);
 
       // receive from above
       MPI_Recv(haloN, nx, MPI_FLOAT, above, tag, MPI_COMM_WORLD, &status);
@@ -246,7 +246,7 @@ int main(int argc, char *argv[]) {
     for (int i = 0; i < nx; i++)
       for (int j = 0; j < ny; j++)
         buffer[i*ny+j] = image[z+j + i*numy];
-    MPI_Ssend(buffer, nx*((numy / size)+1), MPI_FLOAT, MASTER, tag, MPI_COMM_WORLD);
+    MPI_Send(buffer, nx*((numy / size)+1), MPI_FLOAT, MASTER, tag, MPI_COMM_WORLD);
   }
 
   if (rank == MASTER) {
