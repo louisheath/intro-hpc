@@ -358,8 +358,8 @@ int main(int argc, char *argv[]) {
   }
   
   // clean up
-  // free(image);
-  // free(tmp_image);
+  free(image);
+  free(tmp_image);
   MPI_Finalize();
 }
 
