@@ -95,6 +95,9 @@ int main(int argc, char *argv[]) {
   float haloR[ny];
   float haloN[ny]; // recv buffer
 
+  // syncronise processes
+  MPI_Barrier(MPI_COMM_WORLD);
+
   // Start timing my code
   double tic = wtime();
 
@@ -127,11 +130,11 @@ int main(int argc, char *argv[]) {
       }
 
       // send right
-      MPI_Send(haloR, ny, MPI_FLOAT, right, tag, MPI_COMM_WORLD);
+      MPI_Ssend(haloR, ny, MPI_FLOAT, right, tag, MPI_COMM_WORLD);
 
     } else if (rank == size - 1) {
       // send left
-      MPI_Send(haloL, ny, MPI_FLOAT, left, tag, MPI_COMM_WORLD);
+      MPI_Ssend(haloL, ny, MPI_FLOAT, left, tag, MPI_COMM_WORLD);
 
       // receive from left
       MPI_Recv(haloN, ny, MPI_FLOAT, left, tag, MPI_COMM_WORLD, &status);
@@ -142,16 +145,16 @@ int main(int argc, char *argv[]) {
 
     } else {
       // send left and receive from right
-      MPI_Sendrecv(haloL, ny, MPI_FLOAT, left, tag,
-	      haloN, ny, MPI_FLOAT, right, tag, MPI_COMM_WORLD, &status);
+      MPI_Ssend(haloL, ny, MPI_FLOAT, left, tag, MPI_COMM_WORLD);
+      MPI_Recv(haloN, ny, MPI_FLOAT, right, tag, MPI_COMM_WORLD, &status);
       // put data in right halo
       for (int y = 0; y < ny; y++) {
         tmp_image[_z + (_nx-1)*ny + y] = haloN[y];
       }
 
       // send right and receive from left
-      MPI_Sendrecv(haloR, ny, MPI_FLOAT, right, tag,
-	      haloN, ny, MPI_FLOAT, left, tag, MPI_COMM_WORLD, &status);
+      MPI_Ssend(haloR, ny, MPI_FLOAT, right, tag, MPI_COMM_WORLD);
+      MPI_Recv(haloN, ny, MPI_FLOAT, left, tag, MPI_COMM_WORLD, &status);
       // put data in left halo
       for (int y = 0; y < ny; y++) {
         tmp_image[_z+y] = haloN[y];
