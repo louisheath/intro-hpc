@@ -95,6 +95,9 @@ int main(int argc, char *argv[]) {
   float haloR[ny];
   float haloN[ny]; // recv buffer
 
+  // syncronise processes
+  MPI_Barrier(MPI_COMM_WORLD);
+
   // Start timing my code
   double tic = wtime();
 
@@ -178,38 +181,42 @@ int main(int argc, char *argv[]) {
 
     // send halo cells
     if (rank == 0) {
-      // send right and receive from right
-      MPI_Sendrecv(haloR, ny, MPI_FLOAT, right, tag,
-	      haloN, ny, MPI_FLOAT, right, tag, MPI_COMM_WORLD, &status);
+      // receive from right
+      MPI_Recv(haloN, ny, MPI_FLOAT, right, tag, MPI_COMM_WORLD, &status);
 
       // put data in right halo
       for (int y = 0; y < ny; y++) {
         image[_z + (_nx-1)*ny + y] = haloN[y];
       }
-    } else if (rank == size - 1) {
-      // send left and receive from left
-      MPI_Sendrecv(haloL, ny, MPI_FLOAT, left, tag,
-	      haloN, ny, MPI_FLOAT, left, tag, MPI_COMM_WORLD, &status);
 
+      // send right
+      MPI_Send(haloR, ny, MPI_FLOAT, right, tag, MPI_COMM_WORLD);
+    } else if (rank == size - 1) {
+      // send left
+      MPI_Send(haloL, ny, MPI_FLOAT, left, tag, MPI_COMM_WORLD);
+
+      // receive from left
+      MPI_Recv(haloN, ny, MPI_FLOAT, left, tag, MPI_COMM_WORLD, &status);
       // put data in left halo
       for (int y = 0; y < ny; y++) {
         image[_z+y] = haloN[y];
       }
+
     } else {
       // send left and receive from right
       MPI_Sendrecv(haloL, ny, MPI_FLOAT, left, tag,
 	      haloN, ny, MPI_FLOAT, right, tag, MPI_COMM_WORLD, &status);
-      // send right and receive from left
-      MPI_Sendrecv(haloR, ny, MPI_FLOAT, right, tag,
-	      haloL, ny, MPI_FLOAT, left, tag, MPI_COMM_WORLD, &status);
-
       // put data in right halo
       for (int y = 0; y < ny; y++) {
         image[_z + (_nx-1)*ny + y] = haloN[y];
       }
+
+      // send right and receive from left
+      MPI_Sendrecv(haloR, ny, MPI_FLOAT, right, tag,
+	      haloN, ny, MPI_FLOAT, left, tag, MPI_COMM_WORLD, &status);
       // put data in left halo
       for (int y = 0; y < ny; y++) {
-        image[_z+y] = haloL[y];
+        image[_z+y] = haloN[y];
       }
     }
   }
