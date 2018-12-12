@@ -83,11 +83,16 @@ int main(int argc, char *argv[]) {
   int row = dims[1] - (rank % dims[1]) - 1;
   int z = nx * col * numy + row * ny;
 
-  // only allowing cohorts of size 4, 8, 16 ..
-  if (numy % dims[1] != 0 || numx % dims[0] != 0) {
-    if (rank == MASTER)
-      fprintf(stderr, "impossible cohort size\n");
-    MPI_Abort(MPI_COMM_WORLD, EXIT_FAILURE);
+  // account for input sizes not divisible by cohort size
+  if (numx % dims[0] != 0) {
+    if (col < numx % dims[0])
+      nx++;
+    z += numy*((col > numx % dims[0]) ? numx % dims[0] : col);
+  }
+  if (numy % dims[1] != 0) {
+    if (row < numy % dims[1])
+      ny++;
+    z += (row > numy % dims[1]) ? numy % dims[1] : row;
   }
 
   // these indexes include halo columns
@@ -310,12 +315,31 @@ int main(int argc, char *argv[]) {
   // combine at master
   if (rank == MASTER) {
     for (int src = 1; src < size; src++) {
-    int z_s = nx * (src / dims[1]) * numy + (dims[1] - (src % dims[1]) - 1) * ny;
+      // determine portion width + height
+      int nx_s = numx / dims[0];
+      int ny_s = numy / dims[1];
 
-      MPI_Recv(buffer, nx*ny, MPI_FLOAT, src, tag, MPI_COMM_WORLD, &status);
-      for (int i = 0; i < nx; i++)
-        for (int j = 0; j < ny; j++)
-          image[z_s +j +i*numy] = buffer[i*ny+j];
+      // index of top left cell of portion
+      int col_s = src / dims[1];
+      int row_s = dims[1] - (src % dims[1]) - 1;
+      int z_s = nx_s * col_s * numy + row_s * ny_s;
+
+      // account for input sizes not divisible by cohort size
+      if (numx % dims[0] != 0) {
+        if (col_s < numx % dims[0])
+          nx_s++;
+        z_s += numy*((col_s > numx % dims[0]) ? numx % dims[0] : col_s);
+      }
+      if (numy % dims[1] != 0) {
+        if (row_s < numy % dims[1])
+          ny_s++;
+        z_s += (row_s > numy % dims[1]) ? numy % dims[1] : row_s;
+      }
+
+      MPI_Recv(buffer, nx_s*ny_s, MPI_FLOAT, src, tag, MPI_COMM_WORLD, &status);
+      for (int i = 0; i < nx_s; i++)
+        for (int j = 0; j < ny_s; j++)
+          image[z_s +j +i*numy] = buffer[i*ny_s+j];
     }
   } else {
     for (int i = 0; i < nx; i++)
@@ -334,8 +358,8 @@ int main(int argc, char *argv[]) {
   }
   
   // clean up
-  free(image);
-  free(tmp_image);
+  // free(image);
+  // free(tmp_image);
   MPI_Finalize();
 }
 
