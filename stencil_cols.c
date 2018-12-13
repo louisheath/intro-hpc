@@ -91,20 +91,6 @@ int main(int argc, char *argv[]) {
     _z -= ny;
   }
 
-/*
-
-    // prepare left halo
-    for (int y = 0; y < ny; y++) {
-      haloL[y] = tmp_image[z+y];
-    }
-
-    // prepare right halo
-    for (int y = 0; y < ny; y++) {
-      haloR[y] = tmp_image[z+(nx-1)*ny +y];
-    }
-
-*/
-
   MPI_Datatype halo;
   float* haloN = malloc(ny*sizeof(float));
 

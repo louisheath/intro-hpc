@@ -92,9 +92,11 @@ int main(int argc, char *argv[]) {
     _z -= 1;
   }
 
-  float haloA[nx]; // send buffers
-  float haloB[nx];
-  float haloN[nx]; // recv buffer
+  MPI_Datatype halo;
+  float* haloN = malloc(nx*sizeof(float));
+
+  MPI_Type_vector(nx, 1, numy, MPI_FLOAT, &halo);
+  MPI_Type_commit(&halo);
 
   // syncronise processes
   MPI_Barrier(MPI_COMM_WORLD);
@@ -106,20 +108,6 @@ int main(int argc, char *argv[]) {
     // change tmp_image
     stencil(_z, _nx, _ny, numy, image, tmp_image);
 
-    // update tmp_image halos
-    if (rank != 0) {
-      // prepare top halo
-      for (int x = 0; x < nx; x++) {
-        haloA[x] = tmp_image[z +x*numy];
-      }
-    }
-    if (rank != size - 1) {
-      // prepare bottom halo
-      for (int x = 0; x < nx; x++) {
-        haloB[x] = tmp_image[z+ny-1 +x*numy];
-      }
-    }
-
     // send halo cells
     if (rank == 0) {
       // receive from below
@@ -131,11 +119,11 @@ int main(int argc, char *argv[]) {
       }
 
       // send below
-      MPI_Send(haloB, nx, MPI_FLOAT, below, tag, MPI_COMM_WORLD);
+      MPI_Send(&tmp_image[z+ny-1], 1, halo, below, tag, MPI_COMM_WORLD);
 
     } else if (rank == size - 1) {
       // send above
-      MPI_Send(haloA, nx, MPI_FLOAT, above, tag, MPI_COMM_WORLD);
+      MPI_Send(&tmp_image[z], 1, halo, above, tag, MPI_COMM_WORLD);
 
       // receive from above
       MPI_Recv(haloN, nx, MPI_FLOAT, above, tag, MPI_COMM_WORLD, &status);
@@ -146,7 +134,7 @@ int main(int argc, char *argv[]) {
 
     } else {
       // send above and receive from below
-      MPI_Sendrecv(haloA, nx, MPI_FLOAT, above, tag,
+      MPI_Sendrecv(&tmp_image[z], 1, halo, above, tag,
 	      haloN, nx, MPI_FLOAT, below, tag, MPI_COMM_WORLD, &status);
       // put data in bottom halo
       for (int x = 0; x < nx; x++) {
@@ -154,7 +142,7 @@ int main(int argc, char *argv[]) {
       }
 
       // send below and receive from above
-      MPI_Sendrecv(haloB, nx, MPI_FLOAT, below, tag,
+      MPI_Sendrecv(&tmp_image[z+ny-1], 1, halo, below, tag,
 	      haloN, nx, MPI_FLOAT, above, tag, MPI_COMM_WORLD, &status);
       // put data in top halo
       for (int x = 0; x < nx; x++) {
@@ -165,21 +153,7 @@ int main(int argc, char *argv[]) {
     // change image
     stencil(_z, _nx, _ny, numy, tmp_image, image);
 
-    // update image halos
-    if (rank != 0) {
-      // prepare top halo
-      for (int x = 0; x < nx; x++) {
-        haloA[x] = image[z +x*numy];
-      }
-    }
-    if (rank != size - 1) {
-      // prepare bottom halo
-      for (int x = 0; x < nx; x++) {
-        haloB[x] = image[z+ny-1 +x*numy];
-      }
-    }
-
-    // send halo cells
+    /// send halo cells
     if (rank == 0) {
       // receive from below
       MPI_Recv(haloN, nx, MPI_FLOAT, below, tag, MPI_COMM_WORLD, &status);
@@ -190,11 +164,11 @@ int main(int argc, char *argv[]) {
       }
 
       // send below
-      MPI_Send(haloB, nx, MPI_FLOAT, below, tag, MPI_COMM_WORLD);
+      MPI_Send(&image[z+ny-1], 1, halo, below, tag, MPI_COMM_WORLD);
 
     } else if (rank == size - 1) {
       // send above
-      MPI_Send(haloA, nx, MPI_FLOAT, above, tag, MPI_COMM_WORLD);
+      MPI_Send(&image[z], 1, halo, above, tag, MPI_COMM_WORLD);
 
       // receive from above
       MPI_Recv(haloN, nx, MPI_FLOAT, above, tag, MPI_COMM_WORLD, &status);
@@ -205,7 +179,7 @@ int main(int argc, char *argv[]) {
 
     } else {
       // send above and receive from below
-      MPI_Sendrecv(haloA, nx, MPI_FLOAT, above, tag,
+      MPI_Sendrecv(&image[z], 1, halo, above, tag,
 	      haloN, nx, MPI_FLOAT, below, tag, MPI_COMM_WORLD, &status);
       // put data in bottom halo
       for (int x = 0; x < nx; x++) {
@@ -213,7 +187,7 @@ int main(int argc, char *argv[]) {
       }
 
       // send below and receive from above
-      MPI_Sendrecv(haloB, nx, MPI_FLOAT, below, tag,
+      MPI_Sendrecv(&image[z+ny-1], 1, halo, below, tag,
 	      haloN, nx, MPI_FLOAT, above, tag, MPI_COMM_WORLD, &status);
       // put data in top halo
       for (int x = 0; x < nx; x++) {
@@ -264,6 +238,7 @@ int main(int argc, char *argv[]) {
   // clean up
   free(image);
   free(tmp_image);
+  MPI_Type_free(&halo);
   MPI_Finalize();
 }
 
