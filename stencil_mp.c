@@ -8,7 +8,7 @@
 #define THREADS 16
 
 /*
-gcc -fopenmp -std=c99 -O3 -Wall stencil.c -o stencil
+icc -fopenmp -std=c99 -O3 -Wall stencil.c -o stencil
 */
 
 void stencil(const int z, const int nx, const int ny, float *  image, float *  tmp_image, const int left, const int right);
