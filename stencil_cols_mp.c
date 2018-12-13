@@ -12,7 +12,7 @@
 #define THREADS 2
 #define MASTER 0
 
-void stencil(const int z, const int nx, const int ny, float *  image, float *  tmp_image, const int left, const int right);
+void stencil(const int z, const int nx, const int ny, const int numy, float *  image, float *  tmp_image, const int top, const int bot);
 void init_image(const int nx, const int ny, float *  image, float *  tmp_image);
 void output_image(const char * file_name, const int nx, const int ny, float *image);
 int mod(int x, int n);
@@ -99,7 +99,7 @@ int main(int argc, char *argv[]) {
   float haloR[ny];
   float haloN[ny]; // recv buffer
 
-  int t_id, t_nx, t_ny, t_z, l, r; // for openMP
+  int t_id, t_nx, t_ny, t_z, top, bot; // for openMP
 
   // syncronise processes
   MPI_Barrier(MPI_COMM_WORLD);
@@ -110,42 +110,42 @@ int main(int argc, char *argv[]) {
   for (int t = 0; t < niters; ++t) {
 
     // change tmp_image
-    #pragma omp parallel default(shared) private(t_id, t_nx, t_ny, t_z, l, r)
+    #pragma omp parallel default(shared) private(t_id, t_nx, t_ny, t_z, top, bot)
     {
-      l = 0; r = 0;
+      top = 0; bot = 0;
       t_id = omp_get_thread_num();
-      t_nx = _nx / THREADS;
-      t_ny = _ny;
-      t_z = _z + (t_id * t_nx) * numy;
+      t_nx = _nx;
+      t_ny = _ny / THREADS;
+      t_z = _z + (t_id * t_ny);
 
       // if (t == 0 && rank == 0 && t_id == 0)
       //   printf("openMP: rank %d, %d threads\n", rank, THREADS);
 
-      if (_nx % THREADS != 0) {
-        if (t_id < _nx % THREADS)
-          t_nx++;
-        t_z += numy*((t_id > _nx % THREADS) ? _nx % THREADS : t_id);
+      if (_ny % THREADS != 0) {
+        if (t_id < _ny % THREADS)
+          t_ny++;
+        t_z += (t_id > _ny % THREADS) ? _ny % THREADS : t_id;
       }
       
       // if (t == 0 && rank == 0)
       //   printf("1thread %d, nx %d ny %d z %d\n", t_id, t_nx, t_ny, t_z);
 
       if (t_id == 0) {
-        l = 1;
-        t_nx += 1;
+        top   = 1;
+        t_ny += 1;
       } else if (t_id == THREADS - 1) {
-        r = 1;
-        t_z -= numy;
-        t_nx += 1;
+        bot   = 1;
+        t_z  -= 1;
+        t_ny += 1;
       } else {
-        t_z -= numy;
-        t_nx += 2;
+        t_z  -= 1;
+        t_ny += 2;
       }
       // #pragma omp barrier
       // if (t == 0 && rank == 0)
       //   printf("2thread %d, nx %d ny %d z %d\n", t_id, t_nx, t_ny, t_z);
 
-      stencil(t_z, t_nx, t_ny, image, tmp_image, l, r);
+      stencil(t_z, t_nx, t_ny, numy, image, tmp_image, top, bot);
     }
 
     // update tmp_image halos
@@ -205,33 +205,33 @@ int main(int argc, char *argv[]) {
     }
 
     // change image
-    #pragma omp parallel default(shared) private(t_id, t_nx, t_ny, t_z, l, r)
+    #pragma omp parallel default(shared) private(t_id, t_nx, t_ny, t_z, top, bot)
     {
-      l = 0; r = 0;
+      top = 0; bot = 0;
       t_id = omp_get_thread_num();
-      t_nx = _nx / THREADS;
-      t_ny = _ny;
-      t_z = _z + (t_id * t_nx) * numy;
+      t_nx = _nx;
+      t_ny = _ny / THREADS;
+      t_z = _z + (t_id * t_ny);
 
-      if (_nx % THREADS != 0) {
-        if (t_id < _nx % THREADS)
-          t_nx++;
-        t_z += numy*((t_id > _nx % THREADS) ? _nx % THREADS : t_id);
+      if (_ny % THREADS != 0) {
+        if (t_id < _ny % THREADS)
+          t_ny++;
+        t_z += (t_id > _ny % THREADS) ? _ny % THREADS : t_id;
       }
 
       if (t_id == 0) {
-        l = 1;
-        t_nx += 1;
+        top   = 1;
+        t_ny += 1;
       } else if (t_id == THREADS - 1) {
-        r = 1;
-        t_z -= numy;
-        t_nx += 1;
+        bot   = 1;
+        t_z  -= 1;
+        t_ny += 1;
       } else {
-        t_z -= numy;
-        t_nx += 2;
+        t_z  -= 1;
+        t_ny += 2;
       }
 
-      stencil(t_z, t_nx, t_ny, tmp_image, image, l, r);
+      stencil(t_z, t_nx, t_ny, numy, tmp_image, image, top, bot);
     }
 
     // update image halos
@@ -337,49 +337,52 @@ int main(int argc, char *argv[]) {
  * z    top left corner
  * nx   num cols
  * ny   num rows
+ * numy image height
  */
-void stencil(const int z, const int nx, const int ny, float * restrict image, float * restrict tmp_image, const int left, const int right) {
+void stencil(const int z, const int nx, const int ny, const int numy, float * restrict image, float * restrict tmp_image, const int top, const int bot) {
+  // top left corner
+  if (top == 1)
+    tmp_image[z] = image[z] * 0.6f + image[z+numy] * 0.1f + image[z+1] * 0.1f;
 
-  if (left == 1) {
-    // top left corner
-    tmp_image[z] = image[z] * 0.6f + image[z+ny] * 0.1f + image[z+1] * 0.1f;
-
-    // 'left' vertical edge cells
-    for (int j = 1; j != ny-1; ++j) {  // VECTORIZING
-      // i = 0
-      tmp_image[z+j] =  image[z+j] * 0.6f + image[z+j+ny] * 0.1f + image[z+j-1] * 0.1f + image[z+j+1] * 0.1f;
-    }
-
-    // bottom left corner
-    tmp_image[z+ny-1] = image[z+ny-1] * 0.6f + image[z+2*ny-1] * 0.1f + image[z+ny-2] * 0.1f;
+  // 'left' vertical edge cells
+  for (int j = 1; j != ny-1; ++j) {  // VECTORIZING
+    // i = 0
+    tmp_image[z+j] =  image[z+j] * 0.6f + image[z+j+numy] * 0.1f + image[z+j-1] * 0.1f + image[z+j+1] * 0.1f;
   }
-  
-  // non-edge cells
+
+  // bottom left corner
+  if (bot == 1)
+    tmp_image[z+ny-1] = image[z+ny-1] * 0.6f + image[z+ny-1+numy] * 0.1f + image[z+ny-2] * 0.1f;
+
+  // center columns
   for (int i = 1; i != nx-1; ++i) {
     // j = 0
-    tmp_image[z+i*ny] = image[z+i*ny] * 0.6f + image[z+(i-1)*ny] * 0.1f + image[z+(i+1)*ny] * 0.1f + image[z+1+i*ny] * 0.1f;
+    if (top == 1)
+      tmp_image[z+i*numy] = image[z+i*numy] * 0.6f + image[z+(i-1)*numy] * 0.1f + image[z+(i+1)*numy] * 0.1f + image[z+1+i*numy] * 0.1f;
 
     for (int j = 1; j != ny-1; ++j) {  // VECTORIZING
-      tmp_image[z+j+i*ny] = image[z+j+i*ny] * 0.6f + image[z+j+i*ny-ny] * 0.1f + image[z+j+i*ny+ny] * 0.1f + image[z+j+i*ny-1] * 0.1f + image[z+j+i*ny+1] * 0.1f;
+      tmp_image[z+j+i*numy] = image[z+j+i*numy] * 0.6f + image[z+j+(i-1)*numy] * 0.1f + image[z+j+(i+1)*numy] * 0.1f + image[z+j+i*numy-1] * 0.1f + image[z+j+i*numy+1] * 0.1f;
     }
 
     // j = (ny-1)
-    tmp_image[z+ny-1+i*ny] = image[z+ny-1+i*ny] * 0.6f + image[z+ny-1+(i-1)*ny] * 0.1f + image[z+ny-1+(i+1)*ny] * 0.1f + image[z+ny-2+i*ny] * 0.1f;
+    if (bot == 1)
+      tmp_image[z+ny-1+i*numy] = image[z+ny-1+i*numy] * 0.6f + image[z+ny-1+(i-1)*numy] * 0.1f + image[z+ny-1+(i+1)*numy] * 0.1f + image[z+ny-2+i*numy] * 0.1f;
   }
 
-  if (right == 1) {
-    // i = (nx-1), j = 0
-    tmp_image[z+(nx-1)*ny] = image[z+(nx-1)*ny] * 0.6f + image[z+(nx-2)*ny] * 0.1f + image[z+1+(nx-1)*ny] * 0.1f;
+  // top right corner
+  if (top == 1)
+    tmp_image[z+(nx-1)*numy] = image[z+(nx-1)*numy] * 0.6f + image[z+(nx-2)*numy] * 0.1f + image[z+1+(nx-1)*numy] * 0.1f;
 
-    // 'right' vertical edge cells
-    for (int j = 1; j != ny-1; ++j) {  // VECTORIZING
-      // i = (nx-1)
-      tmp_image[z+j+(nx-1)*ny] = image[z+j+(nx-1)*ny] * 0.6f + image[z+j+(nx-2)*ny] * 0.1f + image[z+j-1+(nx-1)*ny] * 0.1f + image[z+j+1+(nx-1)*ny] * 0.1f;
-    }
-
-    // i = (nx-1), j = ny-1
-    tmp_image[z-1+nx*ny] =  image[z-1+nx*ny] * 0.6f + image[z-1+(nx-1)*ny] * 0.1f + image[z-2+nx*ny] * 0.1f;
+  // 'right' vertical edge cells
+  for (int j = 1; j != ny-1; ++j) {  // VECTORIZING
+    // i = (nx-1)
+    tmp_image[z+j+(nx-1)*numy] = image[z+j+(nx-1)*numy] * 0.6f + image[z+j+(nx-2)*numy] * 0.1f + image[z+j-1+(nx-1)*numy] * 0.1f + image[z+j+1+(nx-1)*numy] * 0.1f;
   }
+
+  // bottom right corner
+  if (bot == 1)
+    tmp_image[z+ny-1+(nx-1)*numy] =  image[z+ny-1+(nx-1)*numy] * 0.6f + image[z+ny-2+(nx-1)*numy] * 0.1f + image[z+ny-1+(nx-2)*numy] * 0.1f;
+  
 }
 
 // Create the input image
