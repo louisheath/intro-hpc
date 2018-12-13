@@ -12,15 +12,17 @@ fi
 
 case "$1" in
   s)
-    job=jobs/1024_$2.job
-    qsub $job
+    qsub jobs/1024_$2.job
     ;;
   m)
-    job=jobs/4096_$2.job
-    qsub $job
+    qsub jobs/4096_$2.job
     ;;
   l)
-    job=jobs/8000_$2.job
-    qsub $job
+    qsub jobs/8000_$2.job
+    ;;
+  a)
+    qsub jobs/1024_$2.job
+    qsub jobs/4096_$2.job
+    qsub jobs/8000_$2.job
     ;;
   esac
