@@ -1,0 +1,880 @@
+Running on host node31-030
+Time is Fri Dec 14 13:31:48 GMT 2018
+Directory is /panfs/panasas01/cosc/lh16421/stencil
+PBS job ID is 7848472.master.cm.cluster
+16 nodes, dims [4,4], 1024 1024 100
+------------------------------------
+ runtime: 0.009841 s
+------------------------------------
+
+ Performance counter stats for './stencil 1024 1024
+ Performance counter stats for './stencil 1024 1024 100':
+
+
+ Performance counter stats for './stencil 1024 1024 100':
+
+ 100':
+
+
+ Performance counter stats for './stencil 1024 1024 100':
+
+       130,488,734 L1-dcache-loads
+                                            
+        56,099,211 L1-dcache-loads
+                                            
+         4,684,474 L1-dcache-misses
+         #         124,716,595 L1-dcache-loads
+                                            
+         3,191,994 L1-dcache-misses
+         #  
+ Performance counter stats for './stencil 1024 1024 100':
+
+       130,086,150 L1-dcache-loads
+                                            
+         3,173,661 L1-dcache-misses
+         #           3,173,273 L1-dcache-misses
+         #         125,104,713 L1-dcache-loads
+                                            
+         3,175,629 L1-dcache-misses
+         #    2.44% of all L1-dcache hits  
+   <not supported> L1-dcache-prefetches
+   
+         1,898,391 L1-dcache-misses
+                                           
+  2.43% of all L1-dcache hits  
+   <not supported> L1-dcache-prefetches
+   
+         1,908,985 L1-dcache-misses
+                                           
+         1,435,016 LLC-loads
+                                                    8.35% of all L1-dcache hits  
+   <not supported> L1-dcache-prefetches
+   
+         2,080,095 L1-dcache-misses
+                                           
+         2,077,241 LLC-loads
+                                                  
+           101,996 LLC-misses
+               #    4.91% of all LL-cache hits   
+
+       0.104337525 seconds time elapsed
+
+  2.56% of all L1-dcache hits  
+   <not supported> L1-dcache-prefetches
+   
+         1,897,711 L1-dcache-misses
+                                           
+         1,261,604 LLC-loads
+                                                  
+            42,130 LLC-misses
+               #    3.34% of all LL-cache hits   
+
+       0.104183424 seconds time elapsed
+
+  2.54% of all L1-dcache hits  
+   <not supported> L1-dcache-prefetches
+   
+         1,893,115 L1-dcache-misses
+                                           
+         1,436,236 LLC-loads
+                                                  
+            42,790 LLC-misses
+               #           1,253,021 LLC-loads
+                                                  
+            38,427 LLC-misses
+               #    3.07% of all LL-cache hits   
+
+       0.099627003 seconds time elapsed
+
+
+            54,765 LLC-misses
+               #    3.82% of all LL-cache hits   
+
+       0.099120893 seconds time elapsed
+
+  2.98% of all LL-cache hits   
+
+       0.102608760 seconds time elapsed
+
+
+ Performance counter stats for './stencil 1024 1024 100':
+
+       129,448,410 L1-dcache-loads
+                                            
+         3,097,930 L1-dcache-misses
+         #    2.39% of all L1-dcache hits  
+   <not supported> L1-dcache-prefetches
+   
+         1,895,429 L1-dcache-misses
+                                           
+         1,485,058 LLC-loads
+                                                  
+ Performance counter stats for './stencil 1024 1024 100':
+
+
+            36,317 LLC-misses
+               #    2.45% of all LL-cache hits   
+
+       0.101520527 seconds time elapsed
+
+       126,827,827 L1-dcache-loads
+                                            
+         3,124,063 L1-dcache-misses
+         #  
+ Performance counter stats for './stencil 1024 1024 100':
+
+       132,453,355 L1-dcache-loads
+                                            
+  2.46% of all L1-dcache hits  
+   <not supported> L1-dcache-prefetches
+   
+         1,739,293 L1-dcache-misses
+                                           
+           799,249 LLC-loads
+                                                  
+            40,711 LLC-misses
+               #    5.09% of all LL-cache hits   
+
+       0.100184431 seconds time elapsed
+
+         3,106,073 L1-dcache-misses
+         #    2.35% of all L1-dcache hits  
+   <not supported> L1-dcache-prefetches
+   
+         1,910,087 L1-dcache-misses
+                                           
+         1,487,557 LLC-loads
+                                                  
+            58,025 LLC-misses
+               #    3.90% of all LL-cache hits   
+
+       0.098800172 seconds time elapsed
+
+
+ Performance counter stats for './stencil 1024 1024 100':
+
+
+ Performance counter stats for './stencil 1024 1024 100':
+
+
+ Performance counter stats for './stencil 1024 1024 100':
+
+       129,817,337 L1-dcache-loads
+                                            
+       127,446,281 L1-dcache-loads
+                                            
+         3,185,018 L1-dcache-misses
+                 3,182,068 L1-dcache-misses
+         #   #    2.50% of all L1-dcache hits  
+       130,137,190 L1-dcache-loads
+                                            
+         3,111,202 L1-dcache-misses
+         #    2.39% of all L1-dcache hits  
+   <not supported> L1-dcache-prefetches
+   
+ Performance counter stats for './stencil 1024 1024 100':
+
+       129,496,632 L1-dcache-loads
+                                            
+  2.45% of all L1-dcache hits  
+   <not supported> L1-dcache-prefetches
+   
+         1,891,572 L1-dcache-misses
+                                           
+         1,243,828 LLC-loads
+                                                  
+            36,217 LLC-misses
+               #    2.91% of all LL-cache hits   
+
+   <not supported> L1-dcache-prefetches
+   
+         1,901,228 L1-dcache-misses
+                                           
+         1,439,475 LLC-loads
+                                                  
+            56,095 LLC-misses
+               #    3.90% of all LL-cache hits   
+
+       0.098047893 seconds time elapsed
+
+
+         1,907,092 L1-dcache-misses
+                                           
+         1,481,765 LLC-loads
+                                                  
+            33,055 LLC-misses
+               #    2.23% of all LL-cache hits   
+
+       0.097172847 seconds time elapsed
+
+         3,106,956 L1-dcache-misses
+         #    2.40% of all L1-dcache hits  
+
+ Performance counter stats for './stencil 1024 1024 100':
+
+       0.097266351 seconds time elapsed
+
+   <not supported> L1-dcache-prefetches
+   
+         1,724,802 L1-dcache-misses
+                                           
+           793,014 LLC-loads
+                                                  
+            30,026 LLC-misses
+               #    3.79% of all LL-cache hits   
+
+       130,250,177 L1-dcache-loads
+                                            
+         3,161,045 L1-dcache-misses
+         #         0.097730644 seconds time elapsed
+
+  2.43% of all L1-dcache hits  
+   <not supported> L1-dcache-prefetches
+   
+         1,884,614 L1-dcache-misses
+                                           
+         1,240,030 LLC-loads
+                                                  
+            32,482 LLC-misses
+               #    2.62% of all LL-cache hits   
+
+       0.097672191 seconds time elapsed
+
+
+ Performance counter stats for './stencil 1024 1024 100':
+
+       131,126,918 L1-dcache-loads
+                                            
+         3,136,016 L1-dcache-misses
+         #    2.39% of all L1-dcache hits  
+   <not supported> L1-dcache-prefetches
+   
+ Performance counter stats for './stencil 1024 1024 100':
+
+       130,184,354 L1-dcache-loads
+                                            
+         3,160,505 L1-dcache-misses
+         #    2.43% of all L1-dcache hits  
+   <not supported> L1-dcache-prefetches
+   
+         1,866,860 L1-dcache-misses
+                                           
+         1,401,502 LLC-loads
+                                                  
+            33,547 LLC-misses
+               #    2.39% of all LL-cache hits   
+
+       0.097937205 seconds time elapsed
+
+
+         1,735,764 L1-dcache-misses
+                                           
+           796,882 LLC-loads
+                                                  
+            37,008 LLC-misses
+               #    4.64% of all LL-cache hits   
+
+       0.098684885 seconds time elapsed
+
+
+ Performance counter stats for './stencil 1024 1024 100':
+
+       131,206,318 L1-dcache-loads
+                                            
+         3,115,313 L1-dcache-misses
+         #    2.37% of all L1-dcache hits  
+   <not supported> L1-dcache-prefetches
+   
+         1,913,403 L1-dcache-misses
+                                           
+         1,477,841 LLC-loads
+                                                  
+            39,548 LLC-misses
+               #    2.68% of all LL-cache hits   
+
+       0.098516368 seconds time elapsed
+
+16 nodes, dims [4,4], 4096 4096 100
+------------------------------------
+ runtime: 0.622803 s
+------------------------------------
+
+ Performance counter stats for 
+ Performance counter stats for './stencil 4096 4096 100':
+
+
+ Performance counter stats for './stencil 4096 4096 100':
+
+     1,114,695,703 L1-dcache-loads
+                                            
+        64,441,532 L1-dcache-misses
+             1,807,131,073 L1-dcache-loads
+                                            
+        41,425,147 L1-dcache-misses
+         #   #  
+ Performance counter stats for './stencil 4096 4096 100':
+
+  2.29% of all L1-dcache hits  
+   <not supported> L1-dcache-prefetches
+   
+  5.78% of all L1-dcache hits  
+   <not supported> L1-dcache-prefetches
+   
+        27,349,472 L1-dcache-misses
+                                           
+        40,515,579 LLC-loads
+                                                  
+        23,760,046 L1-dcache-misses
+                                           
+        20,017,080 LLC-loads
+                                                  
+        11,492,360 LLC-misses
+               #   57.41% of all LL-cache hits           29,835,196 LLC-misses
+               #   73.64% of all LL-cache hits   
+
+       1.380850619 seconds time elapsed
+
+     1,767,911,487 L1-dcache-loads
+                                            
+        41,740,382 L1-dcache-misses
+         #  
+
+       1.378311656 seconds time elapsed
+
+  2.36% of all L1-dcache hits  
+   <not supported> L1-dcache-prefetches
+   
+        23,609,371 L1-dcache-misses
+                                           
+
+ Performance counter stats for './stencil 4096 4096 100':
+
+        19,867,094 LLC-loads
+                                                  
+        11,333,168 LLC-misses
+               #   57.04% of all LL-cache hits   
+
+       1.380896285 seconds time elapsed
+
+
+ Performance counter stats for './stencil 4096 4096     1,821,785,077 L1-dcache-loads
+                                            
+        41,139,584 L1-dcache-misses
+         #   100':
+
+  2.26% of all L1-dcache hits  
+   <not supported> L1-dcache-prefetches
+   
+     1,885,896,241 L1-dcache-loads
+                                            
+        41,268,069 L1-dcache-misses
+         #          23,517,540 L1-dcache-misses
+                                           
+        18,760,574 LLC-loads
+                                                  
+        10,596,258 LLC-misses
+               #   56.48% of all LL-cache hits   
+
+       1.379118571 seconds time elapsed
+
+  2.19% of all L1-dcache hits  
+   <not supported> L1-dcache-prefetches
+   
+        23,561,387 L1-dcache-misses
+                                           
+        18,726,956 LLC-loads
+                                                  
+        10,549,778 LLC-misses
+               #   56.33% of all LL-cache hits   
+
+       1.376389767 seconds time elapsed
+
+'./stencil 4096 4096 100':
+
+     1,791,727,793 L1-dcache-loads
+                                            
+        41,595,099 L1-dcache-misses
+         #    2.32% of all L1-dcache hits  
+   <not supported> L1-dcache-prefetches
+   
+        23,548,280 L1-dcache-misses
+                                           
+        19,777,079 LLC-loads
+                                                  
+        11,306,970 LLC-misses
+               #   57.17% of all LL-cache hits   
+
+       1.380242407 seconds time elapsed
+
+
+ Performance counter stats for './stencil 4096 4096 100':
+
+     1,857,565,128 L1-dcache-loads
+                                            
+        41,711,465 L1-dcache-misses
+         #    2.25% of all L1-dcache hits  
+   <not supported> L1-dcache-prefetches
+   
+        23,722,515 L1-dcache-misses
+                                           
+        19,912,924 LLC-loads
+                                                  
+        11,405,840 LLC-misses
+               #   57.28% of all LL-cache hits   
+
+       1.376921253 seconds time elapsed
+
+
+ Performance counter stats for './stencil 4096 4096 100':
+
+     1,397,054,251 L1-dcache-loads
+                                            
+        41,435,840 L1-dcache-misses
+         #    2.97% of all L1-dcache hits  
+   <not supported> L1-dcache-prefetches
+   
+        21,441,320 L1-dcache-misses
+                                           
+        17,238,396 LLC-loads
+                                                  
+        10,051,546 LLC-misses
+               #   58.31% of all LL-cache hits   
+
+       1.375994746 seconds time elapsed
+
+
+ Performance counter stats for './stencil 4096 4096 100':
+
+     1,396,624,212 L1-dcache-loads
+                                            
+        41,603,679 L1-dcache-misses
+         #    2.98% of all L1-dcache hits  
+   <not supported> L1-dcache-prefetches
+   
+        20,507,340 L1-dcache-misses
+                                           
+        16,975,283 LLC-loads
+                                                  
+         9,878,672 LLC-misses
+               #   58.19% of all LL-cache hits   
+
+       1.374780240 seconds time elapsed
+
+
+ Performance counter stats for './stencil 4096 4096 100':
+
+     1,367,715,672 L1-dcache-loads
+                                            
+        41,664,676 L1-dcache-misses
+         #    3.05% of all L1-dcache hits  
+   <not supported> L1-dcache-prefetches
+   
+        22,233,742 L1-dcache-misses
+                                           
+        16,941,695 LLC-loads
+                                                  
+         9,805,942 LLC-misses
+               #   57.88% of all LL-cache hits   
+
+       1.375861171 seconds time elapsed
+
+
+ Performance counter stats for './stencil 4096 4096 100':
+
+     1,420,885,026 L1-dcache-loads
+                                            
+        41,185,266 L1-dcache-misses
+         #    2.90% of all L1-dcache hits  
+   <not supported> L1-dcache-prefetches
+   
+        22,287,275 L1-dcache-misses
+                                           
+        16,856,162 LLC-loads
+                                                  
+         9,539,853 LLC-misses
+               #   56.60% of all LL-cache hits   
+
+       1.374745202 seconds time elapsed
+
+
+ Performance counter stats for './stencil 4096 4096 100':
+
+     1,392,280,979 L1-dcache-loads
+                                            
+        41,301,381 L1-dcache-misses
+         #    2.97% of all L1-dcache hits  
+   <not supported> L1-dcache-prefetches
+   
+        22,099,851 L1-dcache-misses
+                                           
+        17,434,521 LLC-loads
+                                                  
+        10,096,241 LLC-misses
+               #   57.91% of all LL-cache hits   
+
+       1.375664181 seconds time elapsed
+
+
+ Performance counter stats for './stencil 4096 4096 100':
+
+     1,391,964,997 L1-dcache-loads
+                                            
+        41,522,233 L1-dcache-misses
+         #    2.98% of all L1-dcache hits  
+   <not supported> L1-dcache-prefetches
+   
+        22,030,553 L1-dcache-misses
+                                           
+        17,105,554 LLC-loads
+                                                  
+         9,889,193 LLC-misses
+               #   57.81% of all LL-cache hits   
+
+       1.375567488 seconds time elapsed
+
+
+ Performance counter stats for './stencil 4096 4096 100':
+
+     1,386,290,178 L1-dcache-loads
+                                            
+        41,510,081 L1-dcache-misses
+         #    2.99% of all L1-dcache hits  
+   <not supported> L1-dcache-prefetches
+   
+        22,034,506 L1-dcache-misses
+                                           
+        17,184,196 LLC-loads
+                                                  
+         9,910,275 LLC-misses
+               #   57.67% of all LL-cache hits   
+
+       1.375487389 seconds time elapsed
+
+
+ Performance counter stats for './stencil 4096 4096 100':
+
+     1,422,954,897 L1-dcache-loads
+                                            
+        41,109,509 L1-dcache-misses
+         #    2.89% of all L1-dcache hits  
+   <not supported> L1-dcache-prefetches
+   
+        22,151,705 L1-dcache-misses
+                                           
+        16,825,414 LLC-loads
+                                                  
+         9,522,441 LLC-misses
+               #   56.60% of all LL-cache hits   
+
+       1.375421308 seconds time elapsed
+
+
+ Performance counter stats for './stencil 4096 4096 100':
+
+     1,857,544,084 L1-dcache-loads
+                                            
+        41,716,059 L1-dcache-misses
+         #    2.25% of all L1-dcache hits  
+   <not supported> L1-dcache-prefetches
+   
+        23,741,217 L1-dcache-misses
+                                           
+        19,892,932 LLC-loads
+                                                  
+        11,379,681 LLC-misses
+               #   57.20% of all LL-cache hits   
+
+       1.378903841 seconds time elapsed
+
+16 nodes, dims [4,4], 8000 8000 100
+------------------------------------
+ runtime: 2.224203 s
+------------------------------------
+
+ Performance counter stats for './stencil 8000 8000 100':
+
+     2,576,729,455 L1-dcache-loads
+                                            
+       301,075,687 L1-dcache-misses
+         #   11.68% of all L1-dcache hits  
+   <not supported> L1-dcache-prefetches
+   
+       172,115,170 L1-dcache-misses
+                                           
+       184,906,594 LLC-loads
+                                                  
+        49,815,830 LLC-misses
+               #   26.94% of all LL-cache hits   
+
+       3.818042634 seconds time elapsed
+
+
+ Performance counter stats for './stencil 8000 8000 100':
+
+     3,464,321,154 L1-dcache-loads
+                                            
+       165,912,332 L1-dcache-misses
+         #    4.79% of all L1-dcache hits  
+   <not supported> L1-dcache-prefetches
+   
+       105,209,832 L1-dcache-misses
+                                           
+        58,961,352 LLC-loads
+                                                  
+        37,806,379 LLC-misses
+               #   64.12% of all LL-cache hits   
+
+       3.812273187 seconds time elapsed
+
+
+ Performance counter stats for './stencil 8000 8000 100':
+
+     3,394,973,923 L1-dcache-loads
+                                            
+       165,197,706 L1-dcache-misses
+         #    4.87% of all L1-dcache hits  
+   <not supported> L1-dcache-prefetches
+   
+       110,104,440 L1-dcache-misses
+                                           
+        60,121,621 LLC-loads
+                                                  
+        38,323,092 LLC-misses
+               #   63.74% of all LL-cache hits   
+
+       3.801054462 seconds time elapsed
+
+
+ Performance counter stats for './stencil 8000 8000 100':
+
+     3,476,581,828 L1-dcache-loads
+                                            
+       165,430,267 L1-dcache-misses
+         #    4.76% of all L1-dcache hits  
+   <not supported> L1-dcache-prefetches
+   
+       116,527,082 L1-dcache-misses
+                                           
+        59,980,417 LLC-loads
+                                                  
+        38,016,846 LLC-misses
+               #   63.38% of all LL-cache hits   
+
+       3.812243817 seconds time elapsed
+
+
+ Performance counter stats for './stencil 8000 8000 100':
+
+     3,438,518,980 L1-dcache-loads
+                                            
+       164,120,053 L1-dcache-misses
+         #    4.77% of all L1-dcache hits  
+   <not supported> L1-dcache-prefetches
+   
+       110,153,043 L1-dcache-misses
+                                           
+        59,672,999 LLC-loads
+                                                  
+        38,042,314 LLC-misses
+               #   63.75% of all LL-cache hits   
+
+       3.812061594 seconds time elapsed
+
+
+ Performance counter stats for './stencil 8000 8000 100':
+
+     3,429,571,605 L1-dcache-loads
+                                            
+       164,469,949 L1-dcache-misses
+         #    4.80% of all L1-dcache hits  
+   <not supported> L1-dcache-prefetches
+   
+       109,606,309 L1-dcache-misses
+                                           
+        60,281,183 LLC-loads
+                                                  
+        38,406,352 LLC-misses
+               #   63.71% of all LL-cache hits   
+
+       3.798392575 seconds time elapsed
+
+
+ Performance counter stats for './stencil 8000 8000 100':
+
+     3,420,097,054 L1-dcache-loads
+                                            
+       164,977,579 L1-dcache-misses
+         #    4.82% of all L1-dcache hits  
+   <not supported> L1-dcache-prefetches
+   
+       109,921,396 L1-dcache-misses
+                                           
+        60,144,761 LLC-loads
+                                                  
+        38,280,082 LLC-misses
+               #   63.65% of all LL-cache hits   
+
+       3.811485137 seconds time elapsed
+
+
+ Performance counter stats for './stencil 8000 8000 100':
+
+     3,492,928,377 L1-dcache-loads
+                                            
+       165,055,424 L1-dcache-misses
+         #    4.73% of all L1-dcache hits  
+   <not supported> L1-dcache-prefetches
+   
+       116,552,929 L1-dcache-misses
+                                           
+        60,267,662 LLC-loads
+                                                  
+        38,190,067 LLC-misses
+               #   63.37% of all LL-cache hits   
+
+       3.811505178 seconds time elapsed
+
+
+ Performance counter stats for './stencil 8000 8000 100':
+
+     3,042,342,403 L1-dcache-loads
+                                            
+       165,271,075 L1-dcache-misses
+         #    5.43% of all L1-dcache hits  
+   <not supported> L1-dcache-prefetches
+   
+       109,953,989 L1-dcache-misses
+                                           
+        58,798,422 LLC-loads
+                                                  
+        37,396,575 LLC-misses
+               #  
+ Performance counter stats for './stencil 8000 8000 100':
+
+     3,085,668,468 L1-dcache-loads
+                                            
+ 63.60% of all LL-cache hits   
+
+       3.818015558 seconds time elapsed
+
+       165,055,832 L1-dcache-misses
+         #  
+ Performance counter stats for './stencil 8000 8000 100':
+
+  5.35% of all L1-dcache hits  
+   <not supported> L1-dcache-prefetches
+   
+       110,416,000 L1-dcache-misses
+                                           
+        58,718,219 LLC-loads
+                                                  
+        37,458,590 LLC-misses
+               #       3,168,984,109 L1-dcache-loads
+                                            
+       165,153,094 L1-dcache-misses
+         #   63.79% of all LL-cache hits   
+
+       3.817607593 seconds time elapsed
+
+
+ Performance counter stats for './stencil 8000 8000 100':
+
+  5.21% of all L1-dcache hits  
+   <not supported> L1-dcache-prefetches
+   
+       116,829,757 L1-dcache-misses
+                                           
+        58,868,775 LLC-loads
+                                                  
+        37,392,236 LLC-misses
+               #   63.52% of all LL-cache hits   
+
+       3.816069000 seconds time elapsed
+
+     3,160,865,656 L1-dcache-loads
+                                            
+       164,481,709 L1-dcache-misses
+         #    5.20% of all L1-dcache hits  
+   <not supported> L1-dcache-prefetches
+   
+       110,921,946 L1-dcache-misses
+                                           
+        58,815,767 LLC-loads
+                                                  
+        37,540,903 LLC-misses
+               #   63.83% of all LL-cache hits   
+
+       3.815193236 seconds time elapsed
+
+
+ Performance counter stats for './stencil 8000 8000 100':
+
+     3,259,326,643 L1-dcache-loads
+                                            
+       164,955,705 L1-dcache-misses
+         #    5.06% of all L1-dcache hits  
+   <not supported> L1-dcache-prefetches
+   
+       109,756,255 L1-dcache-misses
+                                           
+        59,077,401 LLC-loads
+                                                  
+        37,660,653 LLC-misses
+               #   63.75% of all LL-cache hits   
+
+       3.814325125 seconds time elapsed
+
+
+ Performance counter stats for './stencil 8000 8000 100':
+
+     3,270,302,789 L1-dcache-loads
+                                            
+       165,345,582 L1-dcache-misses
+         #    5.06% of all L1-dcache hits  
+   <not supported> L1-dcache-prefetches
+   
+       110,108,825 L1-dcache-misses
+                                           
+        58,908,786 LLC-loads
+                                                  
+        37,547,688 LLC-misses
+               #   63.74% of all LL-cache hits   
+
+       3.813864811 seconds time elapsed
+
+
+ Performance counter stats for './stencil 8000 8000 100':
+
+     3,318,927,922 L1-dcache-loads
+                                            
+       165,421,754 L1-dcache-misses
+         #    4.98% of all L1-dcache hits  
+   <not supported> L1-dcache-prefetches
+   
+       116,565,053 L1-dcache-misses
+                                           
+        59,363,764 LLC-loads
+                                                  
+        37,669,181 LLC-misses
+               #   63.45% of all LL-cache hits   
+
+       3.812985165 seconds time elapsed
+
+
+ Performance counter stats for './stencil 8000 8000 100':
+
+     3,437,135,692 L1-dcache-loads
+                                            
+       165,503,960 L1-dcache-misses
+         #    4.82% of all L1-dcache hits  
+   <not supported> L1-dcache-prefetches
+   
+       108,364,328 L1-dcache-misses
+                                           
+        58,686,774 LLC-loads
+                                                  
+        37,789,509 LLC-misses
+               #   64.39% of all LL-cache hits   
+
+       3.813891817 seconds time elapsed
+
