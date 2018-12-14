@@ -1,3 +1,3 @@
 stencil: stencil.c
-	mpicc -std=c99 -O3 -Wall $^ -o $@
+	mpiicc -std=c99 -O3 -Wall $^ -o $@
 
